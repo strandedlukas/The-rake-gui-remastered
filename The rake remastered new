@@ -1,0 +1,108 @@
+-- Function to send notification
+local function sendNotification(title, content)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = title,
+        Text = content,
+        Duration = 5 -- Duration in seconds
+    })
+end
+
+-- Call the function to send the notification
+sendNotification("By strandedlukas", "Subscribe to STRANDEDXLUKAS")
+
+-- Create ScreenGui
+local gui = Instance.new("ScreenGui")
+gui.Parent = game.Players.LocalPlayer.PlayerGui
+
+-- Create Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.BorderSizePixel = 2
+frame.Parent = gui
+
+-- Create TextLabel
+local label = Instance.new("TextLabel")
+label.Text = "Toggle Script"
+label.Size = UDim2.new(1, 0, 0.5, 0)
+label.Position = UDim2.new(0, 0, 0, 0)
+label.TextColor3 = Color3.fromRGB(0, 0, 0)
+label.BackgroundTransparency = 1
+label.Parent = frame
+
+-- Create Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Text = "OFF"
+toggleButton.Size = UDim2.new(1, 0, 0.5, 0)
+toggleButton.Position = UDim2.new(0, 0, 0.5, 0)
+toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toggleButton.Parent = frame
+
+local destroyButton = Instance.new("TextButton")
+destroyButton.Text = "Destroy GUI"
+destroyButton.Size = UDim2.new(1, 0, 0.5, 0)
+destroyButton.Position = UDim2.new(0, 0, 0.75, 0)
+destroyButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+destroyButton.Parent = frame
+
+local scriptLoaded = false
+
+-- Function to toggle script
+local function toggleScript()
+    if scriptLoaded then
+        scriptLoaded = false
+        toggleButton.Text = "OFF"
+    else
+        scriptLoaded = true
+        toggleButton.Text = "ON"
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/irlng/TheRakeRemastered/main/TheRake.lua"))()
+    end
+end
+
+-- Function to destroy GUI
+local function destroyGui()
+    gui:Destroy()
+end
+
+-- Connect toggle button to toggleScript function
+toggleButton.MouseButton1Click:Connect(toggleScript)
+
+-- Connect destroy button to destroyGui function
+destroyButton.MouseButton1Click:Connect(destroyGui)
+
+-- Function to make the ScreenGui movable
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = gui.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
+    end
+end)
